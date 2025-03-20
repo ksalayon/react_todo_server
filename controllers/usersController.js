@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const {getErrorMessage, errorModel, sendServerError, getErrorStatusWithMessage} = require("../utility/errorMessages");
 
 // 🟢 GET all users
 const getUsers = async (req, res) => {
@@ -7,7 +8,7 @@ const getUsers = async (req, res) => {
         res.json(users.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        sendServerError(res, errorModel.USER);
     }
 };
 
@@ -16,11 +17,11 @@ const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (user.rows.length === 0) return res.status(404).json({ error: "User not found" });
+        if (user.rows.length === 0) return getErrorStatusWithMessage(res, 404, errorModel.USER);
         res.json(user.rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        sendServerError(res, errorModel.USER);
     }
 };
 
@@ -36,9 +37,9 @@ const createUser = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         if (err.code === '23505') {
-            return res.status(400).json({ error: 'Email already exists' });
+            return getErrorStatusWithMessage(res, 409, errorModel.USER);
         }
-        res.status(500).send('Server Error');
+        sendServerError(res, errorModel.USER);
     }
 };
 
@@ -51,11 +52,13 @@ const updateUser = async (req, res) => {
             'UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING *',
             [name, email, id]
         );
-        if (updatedUser.rows.length === 0) return res.status(404).json({ error: "User not found" });
+        if (updatedUser.rows.length === 0) {
+            return getErrorStatusWithMessage(res, 404, errorModel.USER);
+        }
         res.json(updatedUser.rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        sendServerError(res, errorModel.USER);
     }
 };
 
@@ -64,11 +67,11 @@ const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
         const deletedUser = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
-        if (deletedUser.rows.length === 0) return res.status(404).json({ error: "User not found" });
+        if (deletedUser.rows.length === 0) return getErrorStatusWithMessage(res, 404, errorModel.USER);
         res.json({ message: "User deleted successfully" });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        sendServerError(res, errorModel.USER);
     }
 };
 
