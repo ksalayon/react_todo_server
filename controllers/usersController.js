@@ -27,10 +27,10 @@ const getUserById = async (req, res) => {
 // 🟢 POST - Create a new user
 const createUser = async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const { name, email, password} = req.body;
         const newUser = await pool.query(
-            'INSERT INTO users (name, email, created) VALUES ($1, $2, NOW()) RETURNING *',
-            [name, email]
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+            [name, email, password]
         );
         res.status(201).json(newUser.rows[0]);
     } catch (err) {
