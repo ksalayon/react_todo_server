@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const {getErrorMessage, errorModel, sendServerError, getErrorStatusWithMessage} = require("../utility/errorMessages");
+const {errorModel, sendServerError, getErrorStatusWithMessage} = require("../utility/errorMessages");
 
 // 🟢 GET all users
 const getUsers = async (req, res) => {
@@ -74,5 +74,7 @@ const deleteUser = async (req, res) => {
         sendServerError(res, errorModel.USER);
     }
 };
+
+
 
 module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser };
