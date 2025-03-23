@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const {errorModel, sendServerError} = require("../utility/errorMessages");
+const {responseModel, sendServerError} = require("../utility/responseMessages");
 
 const userHasResourcePermission = async (userId, permissionName, resourceType, resourceId) => {
     try {
@@ -29,10 +29,10 @@ const userHasResourcePermission = async (userId, permissionName, resourceType, r
                 )
                 )
         `);
-        res.json(users.rows);
+        return users.rows;
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.GENERAL);
+        sendServerError(res, responseModel.GENERAL);
     }
 }
 
@@ -57,9 +57,9 @@ const groupHasResourcePermission = async(userId, permissionName, resourceType, r
                 )
             )
         `);
-        res.json(users.rows);
+        return users.rows;
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.GENERAL);
+        sendServerError(res, responseModel.GENERAL);
     }
 }

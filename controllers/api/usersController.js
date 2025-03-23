@@ -1,5 +1,5 @@
-const pool = require('../config/db');
-const {errorModel, sendServerError, getErrorStatusWithMessage} = require("../utility/errorMessages");
+const pool = require('../../config/db');
+const {responseModel, sendServerError, getResponseStatusWithMessage} = require("../../utility/responseMessages");
 
 // 🟢 GET all users
 const getUsers = async (req, res) => {
@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
         res.json(users.rows);
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.USER);
+        sendServerError(res, responseModel.USER);
     }
 };
 
@@ -17,11 +17,11 @@ const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (user.rows.length === 0) return getErrorStatusWithMessage(res, 404, errorModel.USER);
+        if (user.rows.length === 0) return getResponseStatusWithMessage(res, 404, responseModel.USER);
         res.json(user.rows[0]);
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.USER);
+        sendServerError(res, responseModel.USER);
     }
 };
 
@@ -37,9 +37,9 @@ const createUser = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         if (err.code === '23505') {
-            return getErrorStatusWithMessage(res, 409, errorModel.USER);
+            return getResponseStatusWithMessage(res, 409, responseModel.USER);
         }
-        sendServerError(res, errorModel.USER);
+        sendServerError(res, responseModel.USER);
     }
 };
 
@@ -53,12 +53,12 @@ const updateUser = async (req, res) => {
             [name, email, id]
         );
         if (updatedUser.rows.length === 0) {
-            return getErrorStatusWithMessage(res, 404, errorModel.USER);
+            return getResponseStatusWithMessage(res, 404, responseModel.USER);
         }
         res.json(updatedUser.rows[0]);
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.USER);
+        sendServerError(res, responseModel.USER);
     }
 };
 
@@ -67,11 +67,11 @@ const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
         const deletedUser = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
-        if (deletedUser.rows.length === 0) return getErrorStatusWithMessage(res, 404, errorModel.USER);
+        if (deletedUser.rows.length === 0) return getResponseStatusWithMessage(res, 404, responseModel.USER);
         res.json({ message: "User deleted successfully" });
     } catch (err) {
         console.error(err.message);
-        sendServerError(res, errorModel.USER);
+        sendServerError(res, responseModel.USER);
     }
 };
 
