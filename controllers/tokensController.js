@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
-
-const pool = new Pool(); // configure with env vars
+const pool = require("../config/db");
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
@@ -14,26 +12,23 @@ async function createTokens(userId) {
     const shortExpiry = new Date(now.getTime() + 15 * 60 * 1000); // 15 minutes
     const longExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    const client = await pool.connect();
     try {
-        await client.query('BEGIN');
+        await pool.query('BEGIN');
 
         // Optional: Clear existing long tokens for the user
-        await client.query('DELETE FROM tokens WHERE user_id = $1 AND type = $2', [userId, 'long']);
+        await pool.query('DELETE FROM tokens WHERE user_id = $1 AND type = $2', [userId, 'long']);
 
-        await client.query(
+        await pool.query(
             `INSERT INTO tokens (user_id, token, type, expires_at)
        VALUES ($1, $2, 'short', $3), ($1, $4, 'long', $5)`,
             [userId, shortLived, shortExpiry, longLived, longExpiry]
         );
 
-        await client.query('COMMIT');
+        await pool.query('COMMIT');
         return { shortLived, longLived };
     } catch (err) {
-        await client.query('ROLLBACK');
+        await pool.query('ROLLBACK');
         throw err;
-    } finally {
-        client.release();
     }
 }
 
@@ -60,3 +55,6 @@ async function refreshToken(oldRefreshToken) {
         throw new Error('Token refresh failed: ' + err.message);
     }
 }
+
+
+module.exports = { createTokens, refreshToken };

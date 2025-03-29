@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const usersRoutes = require('./routes/usersRoutes');
+const authenticationRoutes = require('./routes/authenticationRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 });
 
 // API routes
+app.use('/login', authenticationRoutes);
 app.use('/users', usersRoutes);
 
 // Start the server
